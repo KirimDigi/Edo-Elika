@@ -986,7 +986,7 @@
           <div class="text-center py-4 px-4">
             <div style="margin-bottom: 10px">
               <div style="color: #b2b2b2;">Nama</div>
-              <div>Nama Tamu</div>
+              <div id="qrGuestNameSlot">Nama Tamu</div>
             </div>
             <div style="margin-bottom: 10px">
               <div style="color: #b2b2b2;">Grup</div>
@@ -1266,6 +1266,40 @@
     // Panggil saat load pertama kali
     document.addEventListener('DOMContentLoaded', () => {
       loadWishes();
+
+      // Ambil nama tamu dari URL query (?to=...) atau hash (#to=...)
+      function getGuestName() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let toParam = urlParams.get('to') || urlParams.get('guest') || urlParams.get('u');
+        if (!toParam && window.location.hash) {
+          const hash = window.location.hash.substring(1);
+          const hashParams = new URLSearchParams(hash);
+          toParam = hashParams.get('to') || hashParams.get('guest') || hashParams.get('u');
+          if (!toParam && hash.indexOf('=') === -1) {
+            toParam = decodeURIComponent(hash);
+          }
+        }
+        return toParam;
+      }
+
+      const guestName = getGuestName();
+      if (guestName) {
+        // Update nama tamu di halaman Cover
+        const guestNameSlot = document.getElementById('guestNameSlot');
+        if (guestNameSlot) {
+          guestNameSlot.innerHTML = guestName;
+        }
+        // Update nama tamu di QR Code modal
+        const qrGuestNameSlot = document.getElementById('qrGuestNameSlot');
+        if (qrGuestNameSlot) {
+          qrGuestNameSlot.innerHTML = guestName;
+        }
+        // Isi otomatis kolom nama di form RSVP
+        const rsvpName = document.getElementById('rsvpName');
+        if (rsvpName) {
+          rsvpName.value = guestName;
+        }
+      }
 
       // Cegah slider/gesture library mengintersepsi scroll pada elemen-elemen ini dengan menggunakan fase Capture
       const stopElements = ['wishesList', 'wishesContainer', 'rsvpMessage', 'rsvpModal'];
